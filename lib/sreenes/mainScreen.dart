@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hakaton4k/sreenes/pages/QRscaner.dart';
 import 'package:hakaton4k/sreenes/pages/analiticPage.dart';
 import 'package:hakaton4k/sreenes/pages/homePage.dart';
-import 'package:hakaton4k/sreenes/pages/more.dart';
+import 'package:hakaton4k/sreenes/pages/userMoreInfo.dart';
 import 'package:hakaton4k/sreenes/pages/target.dart';
 import 'package:hakaton4k/sreenes/pages/addNewTransaction.dart';
 
@@ -60,20 +60,12 @@ class _MainScreenState extends State<MainScreen> {
       body: <Widget>[
         /// Главная страница
         HomePage(theme: theme),
-
-        /// Страница аналитики
-        AnaliticPage(),
-
         /// Cтраница добавления новой транзакции
         AddNewTransaction(
           theme: theme,
         ),
-
-        /// Страница целей
-        TargetPage(theme: theme),
-
-        /// Страница ЕЩЕ
-        MoreInfoPage(theme: theme),
+        /// Страница аналитики
+        AnaliticPage(),
       ][currentPageIndex],
     );
   }
@@ -91,10 +83,7 @@ class _MainScreenState extends State<MainScreen> {
           label: 'Главная',
         ),
 
-        NavigationDestination(
-          icon: Icon(Icons.analytics_sharp),
-          label: 'Аналитика',
-        ),
+       
         // Кнопка "+" с желтым кружочком
         NavigationDestination(
           icon: Container(
@@ -110,14 +99,12 @@ class _MainScreenState extends State<MainScreen> {
           ),
           label: 'Добавить',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.task_alt_rounded),
-          label: 'Цели',
+
+         NavigationDestination(
+          icon: Icon(Icons.analytics_sharp),
+          label: 'Аналитика',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.more),
-          label: 'Еще',
-        )
+       
       ],
     );
   }

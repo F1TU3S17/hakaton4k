@@ -12,7 +12,6 @@ Future<User?> fetchUser(String token) async {
       headers: {
         'Authorization': 'ApiKey $token',
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
     );
 
@@ -27,19 +26,4 @@ Future<User?> fetchUser(String token) async {
   }
 
   return null; // Возвращаем null в случае ошибки
-}
-
-void main() async {
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0NjM3MDYsImlhdCI6MTczMjM3NzMwNiwidXNlcl9pZCI6IjEifQ.z7qWKsLMmUb3RXLp7wZQHB9AOsOjdFDmDFnCMk8B1V4';
-
-  final user = await fetchUser(token);
-
-  if (user != null) {
-    print('ID: ${user.id}');
-    print('Email: ${user.email}');
-    print('Username: ${user.username}');
-    print('Phone: ${user.phone}');
-  } else {
-    print('Не удалось получить данные пользователя');
-  }
 }

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:hakaton4k/modal/user.dart';
+import 'package:hakaton4k/sreenes/pages/userMoreInfo.dart';
 
 class profileCard extends StatelessWidget {
   const profileCard({
     super.key,
     required this.theme,
+    required this.user,
   });
 
+  final user;
   final ThemeData theme;
 
   @override
@@ -24,21 +28,22 @@ class profileCard extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              const CircleAvatar(
-                backgroundColor: Colors.yellowAccent,
-                radius: 32,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.black,
-                  size: 32,
-                ),
-              ),
+               CircleAvatar(
+                    radius: 32,
+                    backgroundColor: theme.colorScheme.primary.withOpacity(0.3),
+                    child: Text(
+                      user.username.isNotEmpty
+                          ? user.username[0].toUpperCase()
+                          : '?',
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Имя пользователя',
+                    user.username,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -56,8 +61,16 @@ class profileCard extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.arrow_forward_ios),
                 onPressed: () {
-                  print('Переход в профиль');
-                },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserMoreInfo(
+                      theme: theme,
+                      userData: user, // Передаем данные пользователя
+                    ),
+                  ),
+                );
+              },
               ),
             ],
           ),
