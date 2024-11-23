@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
+import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/profileCard.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/transactionWidget.dart';
-
-import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart'; // Импорт нового виджета
-
 import '../../сonstants/transactions.dart';
+
+
+
+
 
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -26,8 +28,8 @@ class HomePage extends StatelessWidget {
           BalanceWidget(theme: theme),
           // Карточка финансового здоровья
           HealthWidget(
-            theme: theme,
-            healthScore: 0.99, 
+           theme: theme,
+           healthScore: 0.79, 
           ),
           // Карточка с транзакциями
           Card(

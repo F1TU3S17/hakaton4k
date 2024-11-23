@@ -4,7 +4,7 @@ import 'package:hakaton4k/services/api/reg.dart';
 import 'package:hakaton4k/services/localStorage/ls.dart';
 import 'package:hakaton4k/sreenes/mainScreen.dart';
 import 'package:hakaton4k/sreenes/pages/auth.dart';
-import 'package:hakaton4k/sreenes/pages/homePage.dart';
+//import 'package:hakaton4k/sreenes/pages/homePage.dart';
 
 // Форматировщик для телефона
 class PhoneFormatter extends TextInputFormatter {
