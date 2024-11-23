@@ -26,11 +26,13 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-    appBar: AppBar(
+      appBar: AppBar(
         title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Center(child: const Text('Т-Аналитика', style: TextStyle(fontSize: 26))),
+            Center(
+                child:
+                    const Text('Т-Аналитика', style: TextStyle(fontSize: 26))),
           ],
         ),
       ),
@@ -38,15 +40,20 @@ class _MainScreenState extends State<MainScreen> {
       body: <Widget>[
         /// Главная страница
         HomePage(theme: theme),
+
         /// Страница аналитики
         AnaliticPage(),
+
         /// Cтраница добавления новой транзакции
-        AddNewTransaction(theme: theme,),  
+        AddNewTransaction(
+          theme: theme,
+        ),
+
         /// Страница целей
         TargetPage(theme: theme),
+
         /// Страница ЕЩЕ
         MoreInfoPage(theme: theme),
-       
       ][currentPageIndex],
     );
   }
@@ -63,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
           icon: Icon(Icons.home_outlined),
           label: 'Главная',
         ),
-        
+
         NavigationDestination(
           icon: Icon(Icons.analytics_sharp),
           label: 'Аналитика',
@@ -88,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
           label: 'Цели',
         ),
         NavigationDestination(
-          icon: Icon(Icons.more), 
+          icon: Icon(Icons.more),
           label: 'Еще',
         )
       ],

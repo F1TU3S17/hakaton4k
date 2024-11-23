@@ -1,4 +1,30 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+class AppColors {
+  static const Color primary = contentColorCyan;
+  static const Color menuBackground = Color(0xFF090912);
+  static const Color itemsBackground = Color(0xFF1B2339);
+  static const Color pageBackground = Color(0xFF282E45);
+  static const Color mainTextColor1 = Colors.white;
+  static const Color mainTextColor2 = Colors.white70;
+  static const Color mainTextColor3 = Colors.white38;
+  static const Color mainGridLineColor = Colors.white10;
+  static const Color borderColor = Colors.white54;
+  static const Color gridLinesColor = Color(0x11FFFFFF);
+
+  static const Color contentColorBlack = Colors.black;
+  static const Color contentColorWhite = Colors.white;
+  static const Color contentColorBlue = Color(0xFF2196F3);
+  static const Color contentColorYellow = Color(0xFFFFC300);
+  static const Color contentColorOrange = Color(0xFFFF683B);
+  static const Color contentColorGreen = Color(0xFF3BFF49);
+  static const Color contentColorPurple = Color(0xFF6E1BFF);
+  static const Color contentColorPink = Color(0xFFFF3AF2);
+  static const Color contentColorRed = Color(0xFFE80054);
+  static const Color contentColorCyan = Color(0xFF50E4FF);
+}
 
 class AnaliticPage extends StatefulWidget {
   const AnaliticPage({super.key});
@@ -10,39 +36,240 @@ class AnaliticPage extends StatefulWidget {
 class _AnaliticPageState extends State<AnaliticPage> {
   DateTimeRange? _selectedDateRange;
   List<Map<String, dynamic>> _analyticsData = [];
+  List<PieChartSectionData> _pieChartSections = [];
+  bool _isLoading = true;
+  bool _isExpenseView =
+      true; // Флаг для переключения между расходами и доход/расходами
+  List<Color> gradientColors = [
+    AppColors.contentColorCyan,
+    AppColors.contentColorBlue,
+  ];
 
-  // Заглушка для функции отправки данных (будет заменена на реальный запрос на сервер)
+  bool showAvg = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Инициализируем диапазон дат текущего месяца
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    _selectedDateRange = DateTimeRange(
+      start: firstDayOfMonth,
+      end: lastDayOfMonth,
+    );
+
+    // Загружаем аналитические данные
+    _fetchAnalyticsData(firstDayOfMonth, lastDayOfMonth);
+
+    // Загружаем данные для диаграммы
+    _fetchChartData();
+  }
+
+  // Заглушка для функции получения аналитических данных
   Future<void> _fetchAnalyticsData(DateTime start, DateTime end) async {
-    // Заглушка: Возвращаем тестовые данные
-    await Future.delayed(Duration(seconds: 1)); // эмуляция задержки
+    // Эмуляция получения данных с сервера
+    await Future.delayed(Duration(seconds: 1)); // Задержка
+    try {
+      setState(() {
+        _analyticsData = [
+          {
+            'status': 0,
+            'title': 'Высокая разница доходов и расходов',
+            'info':
+                'Ваши доходы существенно превышают расходы, что даёт вам почву для инвестиций.'
+          },
+          {
+            'status': 1,
+            'title': '10% вашего бюджета уходит на алкоголь',
+            'info':
+                'Очень много денег уходит на алкоголь. Если бы вы потратили хотя бы 5% от этой суммы на Инвест копилку, то заработали бы 321312 btc.'
+          },
+          {
+            'status': 2,
+            'title': 'Инвестиции в акции растут',
+            'info':
+                'Ваши инвестиции в акции показывают положительную динамику. Возможно, стоит увеличить долю в портфеле.'
+          },
+          {
+            'status': 0,
+            'title': 'Проблемы с кредитами',
+            'info':
+                'Ваши расходы на кредиты слишком высоки. Рассмотрите возможность рефинансирования.'
+          },
+        ];
+      });
+    } catch (ex) {}
+  }
+
+  // Заглушка для данных диаграммы
+  Future<void> _fetchChartData() async {
+    // Эмуляция запроса на сервер
+    await Future.delayed(const Duration(seconds: 1)); // Эмуляция задержки
+    final List<Map<String, dynamic>> dummyData = [
+      {
+        "id": "1",
+        "type": "expense",
+        "category": "food",
+        "amount": 500,
+        "date": "2024-11-23",
+        "comment": "Покупка продуктов",
+      },
+      {
+        "id": "2",
+        "type": "expense",
+        "category": "transport",
+        "amount": 300,
+        "date": "2024-11-22",
+        "comment": "Бензин",
+      },
+      {
+        "id": "3",
+        "type": "expense",
+        "category": "entertainment",
+        "amount": 200,
+        "date": "2024-11-21",
+        "comment": "Кино",
+      },
+      {
+        "id": "4",
+        "type": "expense",
+        "category": "bills",
+        "amount": 1000,
+        "date": "2024-11-20",
+        "comment": "Квартплата",
+      },
+      {
+        "id": "5",
+        "type": "income",
+        "category": "work",
+        "amount": 60000,
+        "date": "2024-11-20",
+        "comment": "Зарплата",
+      },
+    ];
+
+    // Преобразуем данные в формат для диаграммы
+    _generateChartData(dummyData);
+    try {
+      setState(() {
+        _isLoading = false; // Убираем индикатор загрузки
+      });
+    } catch (ex) {}
+  }
+
+  // Генерация данных для диаграммы из массива объектов
+  void _generateChartData(List<Map<String, dynamic>> data) {
+    Map<String, double> categoryExpenseMap = {};
+    if (_isExpenseView) {
+      // Проходим по всем данным и суммируем расходы или доходы по категориям
+      for (var item in data) {
+        if ((_isExpenseView && item['type'] == 'expense') ||
+            (_isExpenseView && item['type'] != 'income')) {
+          String category = item['category'];
+          int amount = item['amount'];
+
+          // Если категория уже существует, добавляем к сумме
+          if (categoryExpenseMap.containsKey(category)) {
+            categoryExpenseMap[category] =
+                categoryExpenseMap[category]! + amount;
+          } else {
+            // Если категории нет, создаём новую запись
+            categoryExpenseMap[category] = amount * 1.0;
+          }
+        }
+      }
+
+      // Преобразуем данные в формат для диаграммы
+      List<PieChartSectionData> sections = [];
+      categoryExpenseMap.forEach((category, amount) {
+        sections.add(
+          PieChartSectionData(
+            value: amount,
+            title: '${amount.toInt()}',
+            color: _getCategoryColor(category), // Определяем цвет для категории
+            radius: 40,
+            titleStyle: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        );
+      });
+
+      try {
+        setState(() {
+          _pieChartSections = sections;
+        });
+      } catch (ex) {}
+    } else {
+      // Проходим по всем данным и суммируем расходы или доходы по категориям
+      for (var item in data) {
+        if ((!_isExpenseView && item['type'] == 'expense') ||
+            (!_isExpenseView && item['type'] == 'income')) {
+          String category = item['type'];
+          int amount = item['amount'];
+
+          // Если категория уже существует, добавляем к сумме
+          if (categoryExpenseMap.containsKey(category)) {
+            categoryExpenseMap[category] =
+                categoryExpenseMap[category]! + amount;
+          } else {
+            // Если категории нет, создаём новую запись
+            categoryExpenseMap[category] = amount * 1.0;
+          }
+        }
+      }
+
+      // Преобразуем данные в формат для диаграммы
+      List<PieChartSectionData> sections = [];
+      categoryExpenseMap.forEach((category, amount) {
+        sections.add(
+          PieChartSectionData(
+            value: amount,
+            title: '${amount.toInt()}',
+            color: _getCategoryColor(category), // Определяем цвет для категории
+            radius: 40,
+            titleStyle: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        );
+      });
+
+      try {
+        setState(() {
+          _pieChartSections = sections;
+        });
+      } catch (ex) {}
+    }
+  }
+
+  // Функция для получения цвета для каждой категории
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'expense':
+        return Colors.red;
+      case 'income':
+        return Colors.green;
+      case 'food':
+        return Colors.green;
+      case 'transport':
+        return Colors.blue;
+      case 'entertainment':
+        return Colors.purple;
+      case 'bills':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Обработчик смены вида диаграммы
+  void _toggleChartView() {
     setState(() {
-      _analyticsData = [
-        {
-          'status': 0,
-          'title': 'Высокая разница доходов и расходов',
-          'info':
-              'Ваши доходы существенно превышают расходы, что даёт вам почву для инвестиций.'
-        },
-        {
-          'status': 1,
-          'title': '10% вашего бюджета уходит на алкоголь',
-          'info':
-              'Очень много денег уходит на алкоголь. Если бы вы потратили хотя бы 5% от этой суммы на Инвест копилку, то заработали бы 321312 btc.'
-        },
-        {
-          'status': 2,
-          'title': 'Инвестиции в акции растут',
-          'info':
-              'Ваши инвестиции в акции показывают положительную динамику. Возможно, стоит увеличить долю в портфеле.'
-        },
-        {
-          'status': 0,
-          'title': 'Проблемы с кредитами',
-          'info':
-              'Ваши расходы на кредиты слишком высоки. Рассмотрите возможность рефинансирования.'
-        },
-      ];
+      _isExpenseView = !_isExpenseView; // Переключаем флаг
     });
+    _fetchChartData(); // Перезагружаем данные диаграммы с учётом нового типа
   }
 
   // Открытие выбора диапазона дат
@@ -57,42 +284,29 @@ class _AnaliticPageState extends State<AnaliticPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.yellow, // Цвет для выделения
-              onPrimary:
-                  Colors.black, // Цвет текста и элементов на фоне primary
-              secondary: Colors.grey, // Цвет для акцентов
-              onSecondary:
-                  Colors.black, // Цвет текста и элементов на фоне secondary
+              primary: Colors.yellow,
+              onPrimary: Colors.black,
+              secondary: Colors.grey,
+              onSecondary: Colors.black,
               onSurface: Colors.white,
             ),
-            scaffoldBackgroundColor:
-                Colors.grey[900], // Устанавливаем фон календаря
-            dialogBackgroundColor: Colors.grey[850], // Фон всплывающего окна
-            dialogTheme: DialogTheme(
-              backgroundColor: Colors.grey[850], // Цвет окна ручного ввода
-            ),
+            scaffoldBackgroundColor: Colors.grey[900],
+            dialogBackgroundColor: Colors.grey[850],
+            dialogTheme: DialogTheme(backgroundColor: Colors.grey[850]),
             textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                    foregroundColor:
-                        Colors.black)), // Используем foregroundColor
-            iconTheme: IconThemeData(color: Colors.white), // Белые иконки
+                style: TextButton.styleFrom(foregroundColor: Colors.black)),
+            iconTheme: IconThemeData(color: Colors.white),
             textTheme: TextTheme(
-              bodyLarge:
-                  TextStyle(color: Colors.black), // Белый цвет для текста
-              bodyMedium:
-                  TextStyle(color: Colors.white), // Белый цвет для текста
-              bodySmall:
-                  TextStyle(color: Colors.white), // Белый цвет для субтитров
+              bodyLarge: TextStyle(color: Colors.black),
+              bodyMedium: TextStyle(color: Colors.white),
+              bodySmall: TextStyle(color: Colors.white),
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: Colors.grey[800], // Цвет фона текстового поля
+              fillColor: Colors.grey[800],
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: Colors.yellow, // Цвет рамки при фокусе
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: Colors.yellow, width: 2),
               ),
             ),
           ),
@@ -109,6 +323,56 @@ class _AnaliticPageState extends State<AnaliticPage> {
       // Вызываем функцию для получения аналитики с выбранными датами
       _fetchAnalyticsData(picked.start, picked.end);
     }
+  }
+
+  getListOfSpots(_selectedDateRange) {
+    var spots = [
+      {
+        "id": "1",
+        "amount": 10000,
+        "date": "2024-10-20",
+      },
+      {
+        "id": "2",
+        "amount": 60000,
+        "date": "2024-11-21",
+      },
+      {
+        "id": "3",
+        "amount": 100000,
+        "date": "2024-12-20",
+      },
+      {
+        "id": "4",
+        "amount": 40000,
+        "date": "2025-01-23",
+      },
+      {
+        "id": "5",
+        "amount": 60000,
+        "date": "2025-02-26",
+      },
+    ];
+
+    List<FlSpot> listOfSpots = [];
+    for (int i = 0; i < spots.length; i++) {
+      var spot = spots[i];
+      if (spot["date"] != null && spot["amount"] != null) {
+        DateTime spotDate = DateTime.parse(spot["date"].toString());
+        DateTime lowerTargetDate = _selectedDateRange.start;
+        DateTime upperTargetDate = _selectedDateRange.end;
+        int daysDifference = spotDate.difference(lowerTargetDate).inDays;
+        int amount = int.parse(spot["amount"].toString());
+        if (spotDate.difference(upperTargetDate).inDays <= 0 ||
+            spotDate.difference(lowerTargetDate).inDays < 0) {
+          listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
+        }
+      }
+    }
+
+    listOfSpots.sort((a, b) => a.x.compareTo(b.x));
+
+    return listOfSpots;
   }
 
   @override
@@ -150,6 +414,187 @@ class _AnaliticPageState extends State<AnaliticPage> {
               ),
             ),
             const SizedBox(height: 20),
+            //Text("${_selectedDateRange}"),
+            Container(
+              child: AspectRatio(
+                aspectRatio: 2.0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  child: LineChart(
+                    LineChartData(
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: getListOfSpots(_selectedDateRange),
+                          isCurved: true,
+                          curveSmoothness: 0.3,
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: Colors.yellow.withOpacity(0.3),
+                          ),
+                          color: Colors.yellow,
+                        ),
+                      ],
+                      titlesData: FlTitlesData(
+                        rightTitles: AxisTitles(),
+                        topTitles: AxisTitles(),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize:
+                                30, // Увеличиваем зарезервированный размер для подписей
+                            getTitlesWidget: (value, meta) {
+                              // Используем список spots для определения подписей
+                              final spots = getListOfSpots(_selectedDateRange);
+                              final matchingSpot = spots
+                                      .any((spot) => spot.x == value)
+                                  ? spots.firstWhere((spot) => spot.x == value)
+                                  : null;
+
+                              if (matchingSpot != null) {
+                                // Преобразуем value в дату
+                                Duration duration =
+                                    Duration(days: matchingSpot.x.toInt());
+                                DateTime newDate =
+                                    _selectedDateRange!.start!.add(duration);
+                                String dateString =
+                                    '${newDate.toString().substring(8, 10)}/${newDate.toString().substring(5, 7)}';
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    dateString,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                  ),
+                                );
+                              }
+
+                              return SizedBox
+                                  .shrink(); // Если точка не найдена, ничего не отображаем
+                            },
+                            // Задаём интервал для всех значений на оси X
+                            interval:
+                                1, // Или настраиваем в зависимости от данных
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize:
+                                40, // Увеличиваем зарезервированный размер для подписей по оси Y
+                            getTitlesWidget: (value, meta) {
+                              if (value >= 10000) {
+                                return Text(
+                                  value.toString().substring(0, 2) + 'K',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14), // Уменьшаем размер шрифта
+                                );
+                              } else if (value >= 1000) {
+                                return Text(
+                                  value.toString().substring(0, 1) + 'K',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14), // Уменьшаем размер шрифта
+                                );
+                              } else {
+                                return Text(
+                                  value.toString(),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14), // Уменьшаем размер шрифта
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Stack(
+            //   children: <Widget>[
+            //     AspectRatio(
+            //       aspectRatio: 1.70,
+            //       child: Padding(
+            //         padding: const EdgeInsets.only(
+            //           right: 18,
+            //           left: 12,
+            //           top: 24,
+            //           bottom: 12,
+            //         ),
+            //         child: LineChart(
+            //           showAvg ? avgData() : mainData(),
+            //         ),
+            //       ),
+            //     ),
+            //     SizedBox(
+            //       width: 60,
+            //       height: 34,
+            //       child: TextButton(
+            //         onPressed: () {
+            //           setState(() {
+            //             showAvg = !showAvg;
+            //           });
+            //         },
+            //         child: Text(
+            //           'avg',
+            //           style: TextStyle(
+            //             fontSize: 12,
+            //             color: showAvg
+            //                 ? Colors.white.withOpacity(0.5)
+            //                 : Colors.white,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // Кнопка для смены вида диаграммы
+            // ElevatedButton(
+            //   onPressed: _toggleChartView,
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.grey[850], // Цвет фона кнопки
+            //     foregroundColor: Colors.white, // Цвет текста на кнопке
+            //   ),
+            //   child: Text(
+            //     _isExpenseView ? 'Показать доходы/расходы' : 'Показать расходы',
+            //   ),
+            // ),
+
+            // const SizedBox(height: 20),
+
+            // Круговая диаграмма
+            // _isLoading
+            //     ? CircularProgressIndicator()
+            //     : Container(
+            //         height: 200,
+            //         padding: const EdgeInsets.all(16.0),
+            //         decoration: BoxDecoration(
+            //           color: Colors.grey[850],
+            //           borderRadius: BorderRadius.circular(10),
+            //         ),
+            //         child: PieChart(
+            //           PieChartData(
+            //             sectionsSpace: 3, // Увеличиваем отступ между секторами
+            //             centerSpaceRadius:
+            //                 50, // Уменьшаем радиус центра для закругления
+            //             sections: _pieChartSections,
+            //           ),
+            //         ),
+            //       ),
+
+            const SizedBox(height: 20),
+
             // Список аналитики
             Expanded(
               child: ListView.builder(
