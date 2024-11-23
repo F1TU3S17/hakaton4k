@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hakaton4k/modal/user.dart';
 import 'package:hakaton4k/services/api/getUserInfo.dart';
+import 'package:hakaton4k/services/api/getUserAmount.dart';
 import 'package:hakaton4k/services/localStorage/ls.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart';
@@ -12,18 +13,18 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.theme});
 
   final ThemeData theme;
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  int _userAmount = 0; 
   // Метод для получения данных пользователя
   Future<User> _fetchUserData() async {
     try {
       final token = await getToken(); // Получение токена
-      print(token);
-      return (await fetchUser(token.toString()!))!; // Загрузка данных пользователя
+      _userAmount = await getBalance(token.toString());
+      return (await fetchUser(token.toString()))!; // Загрузка данных пользователя
     } catch (error) {
       throw Exception('Ошибка при загрузке данных: $error');
     }
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
                 // Карточка профиля
                 profileCard(theme: widget.theme, user: userData),
                 // Карточка баланса
-                BalanceWidget(theme: widget.theme),
+                BalanceWidget(theme: widget.theme, amount: _userAmount,),
                 // Карточка финансового здоровья
                 HealthWidget(
                   theme: widget.theme,

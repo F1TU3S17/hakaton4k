@@ -92,11 +92,7 @@ class _HealthWidgetState extends State<HealthWidget> with SingleTickerProviderSt
               ],
             ),
             const SizedBox(height: 12),
-            Divider(
-              color: Colors.white.withOpacity(0.5), // Легкая белая линия
-              thickness: 1,
-            ),
-            const SizedBox(height: 12),
+            
             // Индикатор здоровья
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

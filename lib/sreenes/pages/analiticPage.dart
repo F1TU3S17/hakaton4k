@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hakaton4k/services/localStorage/ls.dart';
@@ -308,49 +310,21 @@ class _AnaliticPageState extends State<AnaliticPage> {
   }
 
   Future<List<FlSpot>> getListOfSpots(_selectedDateRange) async {
-    print("БУУУУУУУУУУУУУУУУУ");
-    // var spots = [
-    //   {
-    //     "id": "1",
-    //     "amount": 10000,
-    //     "date": "2024-10-20",
-    //   },
-    //   {
-    //     "id": "2",
-    //     "amount": 60000,
-    //     "date": "2024-11-21",
-    //   },
-    //   {
-    //     "id": "3",
-    //     "amount": 100000,
-    //     "date": "2024-12-20",
-    //   },
-    //   {
-    //     "id": "4",
-    //     "amount": 40000,
-    //     "date": "2025-01-23",
-    //   },
-    //   {
-    //     "id": "5",
-    //     "amount": 60000,
-    //     "date": "2025-02-26",
-    //   },
-    // ];
     var url =
         Uri.parse('https://test-go-babich.amvera.io/user/operations/period');
     // Получаем токен
     String? token = await getToken();
-
-    print("token: $token");
+    token = token?.substring(10, token.length - 2);
 
     var headers = {
-      'Authorization': 'ApiKey $token',
+      'Authorization': /*'ApiKey $token'*/
+          'ApiKey eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0NzQwNjEsImlhdCI6MTczMjM4NzY2MSwidXNlcl9pZCI6IjEifQ.AaDdeDue92ch1F4Aq0nJDfdKjzzxIMh74SherDZFmUI',
     };
 
-    var body = {
+    var body = jsonEncode({
       "start_date": _selectedDateRange.start.toString().substring(0, 10),
       "end_date": _selectedDateRange.end.toString().substring(0, 10),
-    };
+    });
 
     print(url);
     print(body);
@@ -371,21 +345,41 @@ class _AnaliticPageState extends State<AnaliticPage> {
       print('Request failed with status: ${response.statusCode}');
     }
     List<FlSpot> listOfSpots = [];
-    // for (int i = 0; i < response.body.length; i++) {
-    //   if (response.body[i]["date"] != null && response.body[i]["amount"] != null) {
-    //     DateTime spotDate = DateTime.parse(spot["date"].toString());
-    //     DateTime lowerTargetDate = _selectedDateRange.start;
-    //     DateTime upperTargetDate = _selectedDateRange.end;
-    //     int daysDifference = spotDate.difference(lowerTargetDate).inDays;
-    //     int amount = int.parse(spot["amount"].toString());
-    //     if (spotDate.difference(upperTargetDate).inDays <= 0 ||
-    //         spotDate.difference(lowerTargetDate).inDays < 0) {
-    //       listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
-    //     }
-    //   }
-    // }
+    Map<int, int> mapOfSpots = {};
+    if (response.body == "null") {
+      return [];
+    }
+    var spots = jsonDecode(response.body);
+    for (int i = 0; i < spots.length; i++) {
+      if (spots[i]["date"] != null && spots[i]["amount"] != null) {
+        DateTime spotDate = DateTime.parse(spots[i]["date"].toString());
+        DateTime lowerTargetDate = _selectedDateRange.start;
+        DateTime upperTargetDate = _selectedDateRange.end;
+        int daysDifference = spotDate.difference(lowerTargetDate).inDays;
+        print(daysDifference);
+        int amount = int.parse(spots[i]["amount"].toString());
+        print(amount);
+        // if (spotDate.difference(upperTargetDate).inDays <= 0 ||
+        //     spotDate.difference(lowerTargetDate).inDays < 0) {
+        //   listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
+        // }
+        if (spots[i]["type"] == 0) {
+          print("===");
+          print(">>>");
+          mapOfSpots[daysDifference] =
+              (mapOfSpots[daysDifference] ?? 0) - amount;
+        } else if (spots[i]["type"] == 1) {
+          mapOfSpots[daysDifference] =
+              (mapOfSpots[daysDifference] ?? 0) + amount;
+        }
+        print(spots[i]["type"]);
+      }
+    }
+    mapOfSpots.forEach((key, value) {
+      listOfSpots.add(FlSpot(key.toDouble(), value.toDouble()));
+    });
 
-    // listOfSpots.sort((a, b) => a.x.compareTo(b.x));
+    listOfSpots.sort((a, b) => a.x.compareTo(b.x));
 
     return listOfSpots;
   }
@@ -520,21 +514,17 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 showTitles: true,
                                 reservedSize: 40,
                                 getTitlesWidget: (value, meta) {
-                                  if (value >= 10000) {
+                                  if (value < 1000 && value > -1000) {
                                     return Text(
-                                      value.toString().substring(0, 2) + 'K',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 14),
-                                    );
-                                  } else if (value >= 1000) {
-                                    return Text(
-                                      value.toString().substring(0, 1) + 'K',
+                                      value.toString(),
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 14),
                                     );
                                   } else {
+                                    String newVal = value.toString();
                                     return Text(
-                                      value.toString(),
+                                      newVal.substring(0, newVal.length - 5) +
+                                          'K',
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 14),
                                     );
