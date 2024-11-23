@@ -403,7 +403,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
                       Text(
                         _selectedDateRange == null
                             ? 'Выберите диапазон дат'
-                            : '${_selectedDateRange!.start.toLocal().toString().substring(0, 10)} - ${_selectedDateRange!.end.toLocal().toString().substring(0, 10)}',
+                            : '${_selectedDateRange!.start.toLocal().toString().substring(0, 9)} - ${_selectedDateRange!.end.toLocal().toString().substring(0, 10)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
