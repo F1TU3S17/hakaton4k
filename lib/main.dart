@@ -17,23 +17,22 @@ class BudgetHelperApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: appTheme,
-      title: 'Финансовый помощник',
-       localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''), // Английский
-        Locale('ru', ''), // Русский
-      ],
-      locale: const Locale('ru', ''), // Устанавливаем русский язык
-      
-      //home: const MainScreen(),
-      //home: const Register(),
-      
-      home: CheckAuthWidget()
-    );
+        theme: appTheme,
+        title: 'Финансовый помощник',
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // Английский
+          Locale('ru', ''), // Русский
+        ],
+        locale: const Locale('ru', ''), // Устанавливаем русский язык
+
+        //home: const MainScreen(),
+        //home: const Register(),
+
+        home: CheckAuthWidget());
   }
 }

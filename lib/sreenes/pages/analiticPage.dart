@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -382,47 +381,49 @@ class _AnaliticPageState extends State<AnaliticPage> {
       appBar: AppBar(
         title: const Text('Аналитика'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            // Календарь для выбора диапазона дат
-            GestureDetector(
-              onTap: () => _selectDateRange(context),
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.black),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedDateRange == null
-                          ? 'Выберите диапазон дат'
-                          : '${_selectedDateRange!.start.toLocal()} - ${_selectedDateRange!.end.toLocal()}',
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                    const Icon(
-                      Icons.calendar_today,
-                      color: Colors.white,
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        // Оборачиваем весь контент
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              // Календарь для выбора диапазона дат
+              GestureDetector(
+                onTap: () => _selectDateRange(context),
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _selectedDateRange == null
+                            ? 'Выберите диапазон дат'
+                            : '${_selectedDateRange!.start.toLocal().toString().substring(0, 10)} - ${_selectedDateRange!.end.toLocal().toString().substring(0, 10)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            //Text("${_selectedDateRange}"),
-            Container(
-              child: AspectRatio(
+              const SizedBox(height: 20),
+              // Диаграмма
+              AspectRatio(
                 aspectRatio: 2.0,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 0,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                   child: LineChart(
                     LineChartData(
                       lineBarsData: [
@@ -443,10 +444,8 @@ class _AnaliticPageState extends State<AnaliticPage> {
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize:
-                                30, // Увеличиваем зарезервированный размер для подписей
+                            reservedSize: 30,
                             getTitlesWidget: (value, meta) {
-                              // Используем список spots для определения подписей
                               final spots = getListOfSpots(_selectedDateRange);
                               final matchingSpot = spots
                                       .any((spot) => spot.x == value)
@@ -454,11 +453,10 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                   : null;
 
                               if (matchingSpot != null) {
-                                // Преобразуем value в дату
                                 Duration duration =
                                     Duration(days: matchingSpot.x.toInt());
                                 DateTime newDate =
-                                    _selectedDateRange!.start!.add(duration);
+                                    _selectedDateRange!.start.add(duration);
                                 String dateString =
                                     '${newDate.toString().substring(8, 10)}/${newDate.toString().substring(5, 7)}';
 
@@ -475,40 +473,33 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 );
                               }
 
-                              return SizedBox
-                                  .shrink(); // Если точка не найдена, ничего не отображаем
+                              return const SizedBox.shrink();
                             },
-                            // Задаём интервал для всех значений на оси X
-                            interval:
-                                1, // Или настраиваем в зависимости от данных
+                            interval: 1,
                           ),
                         ),
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize:
-                                40, // Увеличиваем зарезервированный размер для подписей по оси Y
+                            reservedSize: 40,
                             getTitlesWidget: (value, meta) {
                               if (value >= 10000) {
                                 return Text(
                                   value.toString().substring(0, 2) + 'K',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14), // Уменьшаем размер шрифта
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 );
                               } else if (value >= 1000) {
                                 return Text(
                                   value.toString().substring(0, 1) + 'K',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14), // Уменьшаем размер шрифта
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 );
                               } else {
                                 return Text(
                                   value.toString(),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14), // Уменьшаем размер шрифта
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 );
                               }
                             },
@@ -519,85 +510,12 @@ class _AnaliticPageState extends State<AnaliticPage> {
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            // Stack(
-            //   children: <Widget>[
-            //     AspectRatio(
-            //       aspectRatio: 1.70,
-            //       child: Padding(
-            //         padding: const EdgeInsets.only(
-            //           right: 18,
-            //           left: 12,
-            //           top: 24,
-            //           bottom: 12,
-            //         ),
-            //         child: LineChart(
-            //           showAvg ? avgData() : mainData(),
-            //         ),
-            //       ),
-            //     ),
-            //     SizedBox(
-            //       width: 60,
-            //       height: 34,
-            //       child: TextButton(
-            //         onPressed: () {
-            //           setState(() {
-            //             showAvg = !showAvg;
-            //           });
-            //         },
-            //         child: Text(
-            //           'avg',
-            //           style: TextStyle(
-            //             fontSize: 12,
-            //             color: showAvg
-            //                 ? Colors.white.withOpacity(0.5)
-            //                 : Colors.white,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            // Кнопка для смены вида диаграммы
-            // ElevatedButton(
-            //   onPressed: _toggleChartView,
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Colors.grey[850], // Цвет фона кнопки
-            //     foregroundColor: Colors.white, // Цвет текста на кнопке
-            //   ),
-            //   child: Text(
-            //     _isExpenseView ? 'Показать доходы/расходы' : 'Показать расходы',
-            //   ),
-            // ),
-
-            // const SizedBox(height: 20),
-
-            // Круговая диаграмма
-            // _isLoading
-            //     ? CircularProgressIndicator()
-            //     : Container(
-            //         height: 200,
-            //         padding: const EdgeInsets.all(16.0),
-            //         decoration: BoxDecoration(
-            //           color: Colors.grey[850],
-            //           borderRadius: BorderRadius.circular(10),
-            //         ),
-            //         child: PieChart(
-            //           PieChartData(
-            //             sectionsSpace: 3, // Увеличиваем отступ между секторами
-            //             centerSpaceRadius:
-            //                 50, // Уменьшаем радиус центра для закругления
-            //             sections: _pieChartSections,
-            //           ),
-            //         ),
-            //       ),
-
-            const SizedBox(height: 20),
-
-            // Список аналитики
-            Expanded(
-              child: ListView.builder(
+              const SizedBox(height: 20),
+              // Список аналитики
+              ListView.builder(
+                shrinkWrap: true, // Важно для корректного измерения высоты
+                physics:
+                    const NeverScrollableScrollPhysics(), // Отключаем внутреннюю прокрутку
                 itemCount: _analyticsData.length,
                 itemBuilder: (context, index) {
                   var data = _analyticsData[index];
@@ -619,36 +537,57 @@ class _AnaliticPageState extends State<AnaliticPage> {
                   }
 
                   return Card(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     shape: RoundedRectangleBorder(
-                      side: BorderSide(color: borderColor),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.check_circle_outline,
-                        color: borderColor,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      title: Text(
-                        data['title'],
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // Белый цвет текста заголовка
-                        ),
-                      ),
-                      subtitle: Text(
-                        data['info'],
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white, // Белый цвет текста субтитров
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.circle,
+                                  color: borderColor,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    data['title'],
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              data['info'],
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
