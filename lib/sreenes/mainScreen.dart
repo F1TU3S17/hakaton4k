@@ -60,10 +60,12 @@ class _MainScreenState extends State<MainScreen> {
       body: <Widget>[
         /// Главная страница
         HomePage(theme: theme),
+
         /// Cтраница добавления новой транзакции
         AddNewTransaction(
           theme: theme,
         ),
+
         /// Страница аналитики
         AnaliticPage(),
       ][currentPageIndex],
@@ -83,7 +85,6 @@ class _MainScreenState extends State<MainScreen> {
           label: 'Главная',
         ),
 
-       
         // Кнопка "+" с желтым кружочком
         NavigationDestination(
           icon: Container(
@@ -100,16 +101,11 @@ class _MainScreenState extends State<MainScreen> {
           label: 'Добавить',
         ),
 
-         NavigationDestination(
+        NavigationDestination(
           icon: Icon(Icons.analytics_sharp),
           label: 'Аналитика',
         ),
-       
       ],
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 09f8c66feead7809b9283ca109e132d37d2841a8

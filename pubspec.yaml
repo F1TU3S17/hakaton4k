@@ -43,6 +43,7 @@ dependencies:
   fl_chart: ^0.69.2
   syncfusion_flutter_charts: ^27.2.3
   collection: ^1.17.0
+  http: ^1.2.2
 
 
 dev_dependencies:
@@ -91,9 +92,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 09f8c66feead7809b9283ca109e132d37d2841a8

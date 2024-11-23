@@ -1,27 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:http/http.dart' as http;
 
 class AppColors {
-  static const Color primary = contentColorCyan;
-  static const Color menuBackground = Color(0xFF090912);
-  static const Color itemsBackground = Color(0xFF1B2339);
-  static const Color pageBackground = Color(0xFF282E45);
-  static const Color mainTextColor1 = Colors.white;
-  static const Color mainTextColor2 = Colors.white70;
-  static const Color mainTextColor3 = Colors.white38;
-  static const Color mainGridLineColor = Colors.white10;
-  static const Color borderColor = Colors.white54;
-  static const Color gridLinesColor = Color(0x11FFFFFF);
-
-  static const Color contentColorBlack = Colors.black;
-  static const Color contentColorWhite = Colors.white;
   static const Color contentColorBlue = Color(0xFF2196F3);
-  static const Color contentColorYellow = Color(0xFFFFC300);
-  static const Color contentColorOrange = Color(0xFFFF683B);
-  static const Color contentColorGreen = Color(0xFF3BFF49);
-  static const Color contentColorPurple = Color(0xFF6E1BFF);
-  static const Color contentColorPink = Color(0xFFFF3AF2);
-  static const Color contentColorRed = Color(0xFFE80054);
   static const Color contentColorCyan = Color(0xFF50E4FF);
 }
 
@@ -324,52 +307,85 @@ class _AnaliticPageState extends State<AnaliticPage> {
     }
   }
 
-  getListOfSpots(_selectedDateRange) {
-    var spots = [
-      {
-        "id": "1",
-        "amount": 10000,
-        "date": "2024-10-20",
-      },
-      {
-        "id": "2",
-        "amount": 60000,
-        "date": "2024-11-21",
-      },
-      {
-        "id": "3",
-        "amount": 100000,
-        "date": "2024-12-20",
-      },
-      {
-        "id": "4",
-        "amount": 40000,
-        "date": "2025-01-23",
-      },
-      {
-        "id": "5",
-        "amount": 60000,
-        "date": "2025-02-26",
-      },
-    ];
+  Future<List<FlSpot>> getListOfSpots(_selectedDateRange) async {
+    print("БУУУУУУУУУУУУУУУУУ");
+    // var spots = [
+    //   {
+    //     "id": "1",
+    //     "amount": 10000,
+    //     "date": "2024-10-20",
+    //   },
+    //   {
+    //     "id": "2",
+    //     "amount": 60000,
+    //     "date": "2024-11-21",
+    //   },
+    //   {
+    //     "id": "3",
+    //     "amount": 100000,
+    //     "date": "2024-12-20",
+    //   },
+    //   {
+    //     "id": "4",
+    //     "amount": 40000,
+    //     "date": "2025-01-23",
+    //   },
+    //   {
+    //     "id": "5",
+    //     "amount": 60000,
+    //     "date": "2025-02-26",
+    //   },
+    // ];
+    var url =
+        Uri.parse('https://test-go-babich.amvera.io/user/operations/period');
+    // Получаем токен
+    String? token = await getToken();
 
-    List<FlSpot> listOfSpots = [];
-    for (int i = 0; i < spots.length; i++) {
-      var spot = spots[i];
-      if (spot["date"] != null && spot["amount"] != null) {
-        DateTime spotDate = DateTime.parse(spot["date"].toString());
-        DateTime lowerTargetDate = _selectedDateRange.start;
-        DateTime upperTargetDate = _selectedDateRange.end;
-        int daysDifference = spotDate.difference(lowerTargetDate).inDays;
-        int amount = int.parse(spot["amount"].toString());
-        if (spotDate.difference(upperTargetDate).inDays <= 0 ||
-            spotDate.difference(lowerTargetDate).inDays < 0) {
-          listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
-        }
-      }
+    print("token: $token");
+
+    var headers = {
+      'Authorization': 'ApiKey $token',
+    };
+
+    var body = {
+      "start_date": _selectedDateRange.start.toString().substring(0, 10),
+      "end_date": _selectedDateRange.end.toString().substring(0, 10),
+    };
+
+    print(url);
+    print(body);
+    print(headers);
+
+    var response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+    print("писька");
+    // Проверка статуса ответа
+    if (response.statusCode == 200) {
+      // Успешный ответ
+      print('Response data: ${response.body}');
+    } else {
+      // Обработка ошибок
+      print('Request failed with status: ${response.statusCode}');
     }
+    List<FlSpot> listOfSpots = [];
+    // for (int i = 0; i < response.body.length; i++) {
+    //   if (response.body[i]["date"] != null && response.body[i]["amount"] != null) {
+    //     DateTime spotDate = DateTime.parse(spot["date"].toString());
+    //     DateTime lowerTargetDate = _selectedDateRange.start;
+    //     DateTime upperTargetDate = _selectedDateRange.end;
+    //     int daysDifference = spotDate.difference(lowerTargetDate).inDays;
+    //     int amount = int.parse(spot["amount"].toString());
+    //     if (spotDate.difference(upperTargetDate).inDays <= 0 ||
+    //         spotDate.difference(lowerTargetDate).inDays < 0) {
+    //       listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
+    //     }
+    //   }
+    // }
 
-    listOfSpots.sort((a, b) => a.x.compareTo(b.x));
+    // listOfSpots.sort((a, b) => a.x.compareTo(b.x));
 
     return listOfSpots;
   }
@@ -381,214 +397,238 @@ class _AnaliticPageState extends State<AnaliticPage> {
       appBar: AppBar(
         title: const Text('Аналитика'),
       ),
-      body: SingleChildScrollView(
-        // Оборачиваем весь контент
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              // Календарь для выбора диапазона дат
-              GestureDetector(
-                onTap: () => _selectDateRange(context),
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[850],
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedDateRange == null
-                            ? 'Выберите диапазон дат'
-                            : '${_selectedDateRange!.start.toLocal().toString().substring(0, 9)} - ${_selectedDateRange!.end.toLocal().toString().substring(0, 10)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const Icon(
-                        Icons.calendar_today,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Диаграмма
-              AspectRatio(
-                aspectRatio: 2.0,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                  child: LineChart(
-                    LineChartData(
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: getListOfSpots(_selectedDateRange),
-                          isCurved: true,
-                          curveSmoothness: 0.3,
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: Colors.yellow.withOpacity(0.3),
-                          ),
-                          color: Colors.yellow,
-                        ),
-                      ],
-                      titlesData: FlTitlesData(
-                        rightTitles: AxisTitles(),
-                        topTitles: AxisTitles(),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              final spots = getListOfSpots(_selectedDateRange);
-                              final matchingSpot = spots
-                                      .any((spot) => spot.x == value)
-                                  ? spots.firstWhere((spot) => spot.x == value)
-                                  : null;
+      body: FutureBuilder<List<FlSpot>>(
+        future:
+            getListOfSpots(_selectedDateRange), // вызываем асинхронный метод
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            print("ожидаю...");
+            return Center(
+                child: CircularProgressIndicator()); // Пока данные загружаются
+          }
 
-                              if (matchingSpot != null) {
-                                Duration duration =
-                                    Duration(days: matchingSpot.x.toInt());
-                                DateTime newDate =
-                                    _selectedDateRange!.start.add(duration);
-                                String dateString =
-                                    '${newDate.toString().substring(8, 10)}/${newDate.toString().substring(5, 7)}';
+          if (snapshot.hasError) {
+            print("ОШИБКА ЕБАТЬ ТЕБЯ В СРАКУ");
+            return Center(
+                child: Text('Ошибка: ${snapshot.error}')); // Обработка ошибки
+          }
 
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Text(
-                                    dateString,
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                );
-                              }
+          if (!snapshot.hasData) {
+            print("ПУСТО EMPTY ЛОХ");
+            return Center(child: Text('Нет данных')); // Если данных нет
+          }
 
-                              return const SizedBox.shrink();
-                            },
-                            interval: 1,
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            getTitlesWidget: (value, meta) {
-                              if (value >= 10000) {
-                                return Text(
-                                  value.toString().substring(0, 2) + 'K',
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 14),
-                                );
-                              } else if (value >= 1000) {
-                                return Text(
-                                  value.toString().substring(0, 1) + 'K',
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 14),
-                                );
-                              } else {
-                                return Text(
-                                  value.toString(),
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 14),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Список аналитики
-              ListView.builder(
-                shrinkWrap: true, // Важно для корректного измерения высоты
-                physics:
-                    const NeverScrollableScrollPhysics(), // Отключаем внутреннюю прокрутку
-                itemCount: _analyticsData.length,
-                itemBuilder: (context, index) {
-                  var data = _analyticsData[index];
-                  Color borderColor;
+          List<FlSpot> spots = snapshot.data!;
 
-                  // Выбор цвета границы на основе статуса
-                  switch (data['status']) {
-                    case 0:
-                      borderColor = Colors.red; // Отрицательная информация
-                      break;
-                    case 1:
-                      borderColor = Colors.yellow; // Внимание
-                      break;
-                    case 2:
-                      borderColor = Colors.green; // Положительная информация
-                      break;
-                    default:
-                      borderColor = Colors.grey;
-                  }
-
-                  return Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+          return SingleChildScrollView(
+            // Оборачиваем весь контент
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  // Календарь для выбора диапазона дат
+                  GestureDetector(
+                    onTap: () => _selectDateRange(context),
                     child: Container(
+                      padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedDateRange == null
+                                ? 'Выберите диапазон дат'
+                                : '${_selectedDateRange!.start.toLocal().toString().substring(0, 9)} - ${_selectedDateRange!.end.toLocal().toString().substring(0, 10)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Диаграмма
+                  AspectRatio(
+                    aspectRatio: 2.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 0),
+                      child: LineChart(
+                        LineChartData(
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: spots, // Используем загруженные точки
+                              isCurved: true,
+                              curveSmoothness: 0.3,
+                              belowBarData: BarAreaData(
+                                show: true,
+                                color: Colors.yellow.withOpacity(0.3),
+                              ),
+                              color: Colors.yellow,
+                            ),
+                          ],
+                          titlesData: FlTitlesData(
+                            rightTitles: AxisTitles(),
+                            topTitles: AxisTitles(),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                getTitlesWidget: (value, meta) {
+                                  final matchingSpot = spots.firstWhere(
+                                      (spot) => spot.x == value,
+                                      orElse: () => FlSpot(0, 0));
+
+                                  if (matchingSpot.x != 0) {
+                                    Duration duration =
+                                        Duration(days: matchingSpot.x.toInt());
+                                    DateTime newDate =
+                                        _selectedDateRange!.start.add(duration);
+                                    String dateString =
+                                        '${newDate.toString().substring(8, 10)}/${newDate.toString().substring(5, 7)}';
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Text(
+                                        dateString,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 14),
+                                      ),
+                                    );
+                                  }
+
+                                  return const SizedBox.shrink();
+                                },
+                                interval: 1,
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  if (value >= 10000) {
+                                    return Text(
+                                      value.toString().substring(0, 2) + 'K',
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    );
+                                  } else if (value >= 1000) {
+                                    return Text(
+                                      value.toString().substring(0, 1) + 'K',
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    );
+                                  } else {
+                                    return Text(
+                                      value.toString(),
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Список аналитики
+                  ListView.builder(
+                    shrinkWrap: true, // Важно для корректного измерения высоты
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Отключаем внутреннюю прокрутку
+                    itemCount: _analyticsData.length,
+                    itemBuilder: (context, index) {
+                      var data = _analyticsData[index];
+                      Color borderColor;
+
+                      // Выбор цвета границы на основе статуса
+                      switch (data['status']) {
+                        case 0:
+                          borderColor = Colors.red; // Отрицательная информация
+                          break;
+                        case 1:
+                          borderColor = Colors.yellow; // Внимание
+                          break;
+                        case 2:
+                          borderColor =
+                              Colors.green; // Положительная информация
+                          break;
+                        default:
+                          borderColor = Colors.grey;
+                      }
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.circle,
-                                  color: borderColor,
-                                  size: 14,
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      color: borderColor,
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        data['title'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    data['title'],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  data['info'],
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              data['info'],
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
