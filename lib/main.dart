@@ -3,6 +3,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hakaton4k/sreenes/mainScreen.dart';
 import 'package:hakaton4k/themes/appTheme.dart';
+import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:hakaton4k/widgets/chekAuthWidget.dart';
 
 void main() {
   debugPaintSizeEnabled = false;
@@ -28,7 +30,10 @@ class BudgetHelperApp extends StatelessWidget {
       ],
       locale: const Locale('ru', ''), // Устанавливаем русский язык
       
-      home: const MainScreen(),
+      //home: const MainScreen(),
+      //home: const Register(),
+      
+      home: CheckAuthWidget()
     );
   }
 }

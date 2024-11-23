@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
+import 'package:hakaton4k/widgets/homePageWidgees/profileCard.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/transactionWidget.dart';
 
+import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart'; // Импорт нового виджета
+
 import '../../сonstants/transactions.dart';
-
-
 
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -23,6 +24,11 @@ class HomePage extends StatelessWidget {
           profileCard(theme: theme),
           // Карточка баланса
           BalanceWidget(theme: theme),
+          // Карточка финансового здоровья
+          HealthWidget(
+            theme: theme,
+            healthScore: 0.99, 
+          ),
           // Карточка с транзакциями
           Card(
             margin: const EdgeInsets.all(8.0),
@@ -31,7 +37,7 @@ class HomePage extends StatelessWidget {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: theme.cardColor, // Используем цвет из темы
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
@@ -87,73 +93,6 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class profileCard extends StatelessWidget {
-  const profileCard({
-    super.key,
-    required this.theme,
-  });
-
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: theme.cardColor, // Используем цвет из темы
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.yellow,
-                radius: 32,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.black,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Имя пользователя',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Уровень: Новичок',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_ios),
-                onPressed: () {
-                  print('Переход в профиль');
-                },
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

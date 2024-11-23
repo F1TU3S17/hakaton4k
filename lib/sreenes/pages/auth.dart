@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:hakaton4k/services/api/log.dart';
+import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:hakaton4k/sreenes/mainScreen.dart';
+import 'package:hakaton4k/sreenes/pages/register.dart'; // Убедитесь, что путь к MainScreen указан верно
 
 class Auth extends StatelessWidget {
-  const Auth({super.key});
+  Auth({super.key});
+
+  // Контроллеры для текстовых полей
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +24,15 @@ class Auth extends StatelessWidget {
           width: 300,
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: TextField(
-                  cursorRadius: Radius.circular(30),
-                  style: TextStyle(
+                  controller: emailController,
+                  cursorRadius: const Radius.circular(30),
+                  style: const TextStyle(
                     color: Colors.white,
                   ),
                   cursorColor: Colors.black,
@@ -31,8 +40,8 @@ class Auth extends StatelessWidget {
                     filled: true,
                     fillColor: Colors.grey[850],
                     floatingLabelBehavior: FloatingLabelBehavior.never,
-                    labelText: "Логин",
-                    labelStyle: TextStyle(
+                    labelText: "Email",
+                    labelStyle: const TextStyle(
                       color: Colors.white,
                     ),
                     border: OutlineInputBorder(
@@ -51,15 +60,16 @@ class Auth extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: TextField(
+                  controller: passwordController,
                   obscureText: true,
                   cursorColor: Colors.black,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
@@ -67,7 +77,7 @@ class Auth extends StatelessWidget {
                     fillColor: Colors.grey[850],
                     floatingLabelBehavior: FloatingLabelBehavior.never,
                     labelText: "Пароль",
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       color: Colors.white,
                     ),
                     border: OutlineInputBorder(
@@ -86,11 +96,45 @@ class Auth extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               ElevatedButton(
-                onPressed: () => print('вошёл'),
+                onPressed: () async {
+                  // Получаем значения из полей
+                  String email = emailController.text.trim();
+                  String password = passwordController.text.trim();
+
+                  // Проверяем, что поля не пустые
+                  if (email.isEmpty || password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Поля не должны быть пустыми')),
+                    );
+                    return;
+                  }
+
+                  print(email);
+                  print(password);
+                  // Выполняем функцию логина
+                  String result = await loginUser(username: email.toString(), password: password.toString());
+                  
+                  print(result);
+                  // Проверяем результат
+                  if (result.contains('Ошибка')) {
+                    // Показываем сообщение об ошибке
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка: $result'), backgroundColor: Colors.yellow,),
+                    );
+                  } else {
+                    await saveToken(result);
+                    // Токен успешно получен, переходим на MainScreen
+                    print('Авторизация успешна, токен: $result');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MainScreen()),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.yellow,
                   minimumSize: const Size(100, 50), // Увеличиваем размер кнопки
@@ -98,16 +142,12 @@ class Auth extends StatelessWidget {
                 child: const Text('Войти'),
               ),
               const SizedBox(height: 20), // Добавляем отступ между кнопками
-              // ElevatedButton(
-              //   onPressed: () => print('регистрируюсь'),
-              //   style: ElevatedButton.styleFrom(
-              //     minimumSize: const Size(200, 50), // Увеличиваем размер кнопки
-              //   ),
-              //   child: const Text('Зарегистрироваться'),
-              // ),
               InkWell(
-                onTap: () => print('регистрируюсь...'), // Обработчик нажатия
-                child: Text(
+                onTap: () => (Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Register()),
+                    )), // Обработчик нажатия
+                child: const Text(
                   'Зарегистрироваться',
                   style: TextStyle(
                     color: Colors.yellow, // Цвет текста ссылки

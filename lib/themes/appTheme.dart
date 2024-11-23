@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
   primaryColor: Colors.black,
+  scaffoldBackgroundColor: const Color.fromARGB(255, 21, 21, 21),
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: Colors.yellow, //Основный акцентный цвет
     brightness: Brightness.dark,  // Темный режим

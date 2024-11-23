@@ -24,8 +24,8 @@ class profileCard extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundColor: Colors.yellow,
+              const CircleAvatar(
+                backgroundColor: Colors.yellowAccent,
                 radius: 32,
                 child: Icon(
                   Icons.person,
