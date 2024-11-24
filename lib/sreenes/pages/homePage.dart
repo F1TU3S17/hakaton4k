@@ -6,10 +6,13 @@ import 'package:hakaton4k/services/api/getUserInfo.dart';
 import 'package:hakaton4k/services/api/getUserAmount.dart';
 
 import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:hakaton4k/utils/calculateFinancialHealth.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/profileCard.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/transactionWidget.dart';
+
+import '../../utils/gettersFinParams.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.theme});
@@ -28,7 +31,6 @@ class _HomePageState extends State<HomePage> {
     try {
       final token = await getToken();
       _userAmount = await getBalance(token.toString());
-
       // Получение транзакций
       _transactions = await fetchTransactions(token.toString());
       _transactions.sort((a, b) => b['date'].compareTo(a['date']));
@@ -37,6 +39,8 @@ class _HomePageState extends State<HomePage> {
       throw Exception('Ошибка при загрузке данных: $error');
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +78,15 @@ class _HomePageState extends State<HomePage> {
                 ),
                 // Карточка финансового здоровья
                 HealthWidget(
+                  transactions: _transactions,
                   theme: widget.theme,
-                  healthScore: 0.98,
+                  healthScore: calculateFinancialHealth(
+                      getIncome(_transactions),
+                      getExpenses(_transactions),
+                      getInvestments(_transactions),
+                      getDeposits(_transactions),
+                      getFreeFunds(_transactions),
+                      _userAmount.toDouble()),
                 ),
                 // Карточка с транзакциями
                 Card(
@@ -121,7 +132,8 @@ class _HomePageState extends State<HomePage> {
                                   cost: (transaction['amount'])
                                       .toString(), // Сумма
                                   typeValue: 'руб',
-                                  isExpense: categoryData?['type'] == 1 , // Определение, является ли транзакция расходом
+                                  isExpense: categoryData?['type'] ==
+                                      1, // Определение, является ли транзакция расходом
                                 );
                               },
                             ),

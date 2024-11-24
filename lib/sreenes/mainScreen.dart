@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
-          'Т-Аналитика',
+          'Т-Капитал',
           style: TextStyle(fontSize: 26),
         ),
         actions: [

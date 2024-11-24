@@ -153,7 +153,7 @@ class _AddNewTransactionState extends State<AddNewTransaction>
                           if (value == null || value.isEmpty) {
                             return 'Введите сумму';
                           }
-                          if (double.tryParse(value) == null) {
+                          if (int.tryParse(value) == null || int.tryParse(value)! <= 0) {
                             return 'Введите корректное число';
                           }
                           return null;

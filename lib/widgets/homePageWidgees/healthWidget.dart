@@ -8,11 +8,12 @@ class HealthWidget extends StatefulWidget {
     super.key,
     required this.theme,
     required this.healthScore,
+    required this.transactions,
   });
 
   final ThemeData theme;
   final double healthScore; // Значение от 0.0 до 1.0 (от красного к зеленому)
-
+  final List<Map<String, dynamic>> transactions;
   @override
   _HealthWidgetState createState() => _HealthWidgetState();
 }
@@ -154,7 +155,8 @@ class _HealthWidgetState extends State<HealthWidget>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const FinancialHealthDetailScreen(),
+                    builder: (context) => FinancialHealthDetailScreen(
+                        transactions: widget.transactions),
                   ),
                 );
               },
