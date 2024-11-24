@@ -147,7 +147,7 @@ class _RegisterState extends State<Register> {
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const MainScreen(),
+            builder: (context) => Auth(),
           ),
         );
       } catch (e, stackTrace) {

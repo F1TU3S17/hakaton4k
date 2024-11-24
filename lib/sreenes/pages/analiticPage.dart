@@ -214,9 +214,6 @@ class _AnaliticPageState extends State<AnaliticPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 21, 21),
-      appBar: AppBar(
-        title: const Text('Аналитика'),
-      ),
       body: FutureBuilder<List<FlSpot>>(
         future:
             getListOfSpots(_selectedDateRange), // вызываем асинхронный метод

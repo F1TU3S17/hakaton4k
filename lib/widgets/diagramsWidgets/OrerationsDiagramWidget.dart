@@ -30,11 +30,10 @@ class OperationsDiagramWidgets extends StatelessWidget {
     var url =
         Uri.parse('https://test-go-babich.amvera.io/user/operations/period');
     String? token = await getToken();
-    token = token?.substring(10, token.length - 2);
+    //token = token?.substring(10, token.length - 2);
 
     var headers = {
-      'Authorization': /*'ApiKey $token'*/
-          'ApiKey eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0ODYyNjAsImlhdCI6MTczMjM5OTg2MCwidXNlcl9pZCI6IjEwIn0.XYuuokqQvXsmxTYZdlHNAcSC7kBim9n2pXlu5Po1kXA',
+      'Authorization': 'ApiKey $token'
     };
 
     var body = jsonEncode({

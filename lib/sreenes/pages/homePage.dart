@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                             height: 250, // Ограничение по высоте
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
-                              itemCount: 8,
+                              itemCount: _transactions.length,
                               itemBuilder: (context, index) {
                                 final transaction = _transactions[index];
                                 final categoryData =
