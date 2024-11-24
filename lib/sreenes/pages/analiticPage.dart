@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:hakaton4k/widgets/diagramsWidgets/DohodDiagramWidget.dart';
+import 'package:hakaton4k/widgets/diagramsWidgets/OrerationsDiagramWidget.dart';
 import 'package:http/http.dart' as http;
 
 class AppColors {
@@ -50,7 +52,6 @@ class _AnaliticPageState extends State<AnaliticPage> {
   // Заглушка для функции получения аналитических данных
   Future<void> _fetchAnalyticsData(DateTime start, DateTime end) async {
     // Эмуляция получения данных с сервера
-    await Future.delayed(const Duration(seconds: 1)); // Задержка
     try {
       setState(() {
         _analyticsData = [
@@ -58,7 +59,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
             'status': 3,
             'title': 'Подсказка от нас!',
             'info':
-                'Дополнительная экономия открывает новые возможности!\nРеализуй свои сбережения с пользой!'
+                'Дополнительная экономия открывает дополнительные возможности!\nРеализуй свои сбережения с пользой!'
           },
           {
             'status': 0,
@@ -68,9 +69,9 @@ class _AnaliticPageState extends State<AnaliticPage> {
           },
           {
             'status': 1,
-            'title': '10% вашего бюджета уходит на алкоголь',
+            'title': '10% вашего бюджета уходит на развлечения',
             'info':
-                'Очень много денег уходит на алкоголь. Если бы вы потратили хотя бы 5% от этой суммы на Инвест копилку, то заработали бы 321312 btc.'
+                'Очень много денег уходит на развлечения. Если бы вы потратили хотя бы 5% от этой суммы на Инвест копилку, то заработали бы 321312 btc.'
           },
           {
             'status': 2,
@@ -275,89 +276,12 @@ class _AnaliticPageState extends State<AnaliticPage> {
                   ),
                   const SizedBox(height: 20),
                   // Диаграмма
-                  AspectRatio(
-                    aspectRatio: 2.0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 0),
-                      child: LineChart(
-                        LineChartData(
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: spots, // Используем загруженные точки
-                              isCurved: true,
-                              curveSmoothness: 0.3,
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Colors.yellow.withOpacity(0.3),
-                              ),
-                              color: Colors.yellow,
-                            ),
-                          ],
-                          titlesData: FlTitlesData(
-                            rightTitles: const AxisTitles(),
-                            topTitles: const AxisTitles(),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                getTitlesWidget: (value, meta) {
-                                  final matchingSpot = spots.firstWhere(
-                                      (spot) => spot.x == value,
-                                      orElse: () => const FlSpot(0, 0));
-
-                                  if (matchingSpot.x != 0) {
-                                    Duration duration =
-                                        Duration(days: matchingSpot.x.toInt());
-                                    DateTime newDate =
-                                        _selectedDateRange!.start.add(duration);
-                                    String dateString =
-                                        '${newDate.toString().substring(8, 10)}/${newDate.toString().substring(5, 7)}';
-
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: Text(
-                                        dateString,
-                                        textAlign: TextAlign.center,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 14),
-                                      ),
-                                    );
-                                  }
-
-                                  return const SizedBox.shrink();
-                                },
-                                interval: 1,
-                              ),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: (value, meta) {
-                                  if (value < 1000 && value > -1000) {
-                                    return Text(
-                                      value.toString(),
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 14),
-                                    );
-                                  } else {
-                                    String newVal = value.toString();
-                                    return Text(
-                                      '${newVal.substring(0, newVal.length - 5)}K',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 14),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  DohodDiagramWidget(
+                    selectedDateRange: _selectedDateRange,
+                  ), // Передай диапазон дат),
+                  const SizedBox(height: 20),
+                  OperationsDiagramWidgets(
+                    selectedDateRange: _selectedDateRange,
                   ),
                   const SizedBox(height: 20),
                   // Список аналитики
@@ -408,7 +332,6 @@ class _AnaliticPageState extends State<AnaliticPage> {
                         default:
                           borderColor = Colors.grey;
                       }
-
                       return Card(
                         margin: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 6),
@@ -460,8 +383,12 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 const SizedBox(height: 8),
                                 Text(
                                   data['info'],
-                                  style:
-                                      infoStyle, // Используем изменённый стиль
+                                  style: infoStyle.copyWith(
+                                    fontSize: isSpecialCard
+                                        ? 16
+                                        : infoStyle
+                                            .fontSize, // Увеличиваем шрифт, если это особая карточка
+                                  ),
                                 ),
                                 if (isSpecialCard) ...[
                                   const SizedBox(height: 16),
@@ -470,17 +397,47 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: List.generate(
                                       3,
-                                      (index) => Container(
-                                        height: 100,
-                                        width: 100,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
+                                      (index) => Column(
+                                        children: [
+                                          Container(
+                                            height: 80,
+                                            width: 80,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              child: Image.network(
+                                                index == 0
+                                                    ? 'https://cdn.tbank.ru/static/pages/files/d39e9d26-fd5e-4574-9ad3-c3f2fc102598.png'
+                                                    : index == 1
+                                                        ? 'https://cdn.tbank.ru/static/pages/files/977ef771-1005-411e-a2db-64e8f92d5fb1.png'
+                                                        : 'https://cdn.tbank.ru/static/pages/files/d819b1e8-293e-43b9-b28e-1f38f5058372.png',
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  8), // Добавляем отступ между изображением и текстом
+                                          Text(
+                                            index == 0
+                                                ? 'Т Банк'
+                                                : index == 1
+                                                    ? 'Т Бизнес'
+                                                    : 'Т Инвестиции',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
+                                  )
                                 ],
                               ],
                             ),

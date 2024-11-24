@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 final Map<String, Map<String, dynamic>> expenseCategories = {
-  'food': {
-    'category': '22412',
-    'icon': Icons.fastfood,
-    'name': 'Еда'
-  },
+  'food': {'category': '22412', 'icon': Icons.fastfood, 'name': 'Еда'},
   'transport': {
     'category': '22413',
     'icon': Icons.directions_car,
@@ -26,5 +22,4 @@ final Map<String, Map<String, dynamic>> expenseCategories = {
     'icon': Icons.health_and_safety,
     'name': 'Здоровье'
   },
-  
 };

@@ -66,6 +66,8 @@ flutter:
   assets:
     - assets/logos/t_logo.png
     - assets/logos/t.png
+    - assets/logos/ti.jpg
+    - assets/logos/tb.jpg
     - assets/
     
 
