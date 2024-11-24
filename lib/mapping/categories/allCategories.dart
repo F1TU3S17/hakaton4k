@@ -59,4 +59,9 @@ final Map<String, Map<String, dynamic>> allCategories = {
     'name': 'Стипендия',
     'type': 1, // Доход
   },
+  '12417': {
+    'icon': Icons.cases_sharp,
+    'name': 'Вклады',
+    'type': 1,
+  },
 };

@@ -27,4 +27,9 @@ final Map<String, Map<String, dynamic>> incomeCategories = {
     'icon': Icons.star_border_purple500_rounded,
     'name': 'Стипендия'
   },
+  'deposit': {
+    'category': '12417',
+    'icon': Icons.cases_sharp,
+    'name': 'Доход по вкладам'
+  },
 };
