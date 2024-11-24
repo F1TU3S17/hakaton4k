@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hakaton4k/services/localStorage/ls.dart';
@@ -20,10 +19,6 @@ class AnaliticPage extends StatefulWidget {
 class _AnaliticPageState extends State<AnaliticPage> {
   DateTimeRange? _selectedDateRange;
   List<Map<String, dynamic>> _analyticsData = [];
-  List<PieChartSectionData> _pieChartSections = [];
-  bool _isLoading = true;
-  bool _isExpenseView =
-      true; // Флаг для переключения между расходами и доход/расходами
   List<Color> gradientColors = [
     AppColors.contentColorCyan,
     AppColors.contentColorBlue,
@@ -49,16 +44,22 @@ class _AnaliticPageState extends State<AnaliticPage> {
     _fetchAnalyticsData(firstDayOfMonth, lastDayOfMonth);
 
     // Загружаем данные для диаграммы
-    _fetchChartData();
+    // _fetchChartData();
   }
 
   // Заглушка для функции получения аналитических данных
   Future<void> _fetchAnalyticsData(DateTime start, DateTime end) async {
     // Эмуляция получения данных с сервера
-    await Future.delayed(Duration(seconds: 1)); // Задержка
+    await Future.delayed(const Duration(seconds: 1)); // Задержка
     try {
       setState(() {
         _analyticsData = [
+          {
+            'status': 3,
+            'title': 'Подсказка от нас!',
+            'info':
+                'Дополнительная экономия открывает новые возможности!\nРеализуй свои сбережения с пользой!'
+          },
           {
             'status': 0,
             'title': 'Высокая разница доходов и расходов',
@@ -85,175 +86,8 @@ class _AnaliticPageState extends State<AnaliticPage> {
           },
         ];
       });
+      // ignore: empty_catches
     } catch (ex) {}
-  }
-
-  // Заглушка для данных диаграммы
-  Future<void> _fetchChartData() async {
-    // Эмуляция запроса на сервер
-    await Future.delayed(const Duration(seconds: 1)); // Эмуляция задержки
-    final List<Map<String, dynamic>> dummyData = [
-      {
-        "id": "1",
-        "type": "expense",
-        "category": "food",
-        "amount": 500,
-        "date": "2024-11-23",
-        "comment": "Покупка продуктов",
-      },
-      {
-        "id": "2",
-        "type": "expense",
-        "category": "transport",
-        "amount": 300,
-        "date": "2024-11-22",
-        "comment": "Бензин",
-      },
-      {
-        "id": "3",
-        "type": "expense",
-        "category": "entertainment",
-        "amount": 200,
-        "date": "2024-11-21",
-        "comment": "Кино",
-      },
-      {
-        "id": "4",
-        "type": "expense",
-        "category": "bills",
-        "amount": 1000,
-        "date": "2024-11-20",
-        "comment": "Квартплата",
-      },
-      {
-        "id": "5",
-        "type": "income",
-        "category": "work",
-        "amount": 60000,
-        "date": "2024-11-20",
-        "comment": "Зарплата",
-      },
-    ];
-
-    // Преобразуем данные в формат для диаграммы
-    _generateChartData(dummyData);
-    try {
-      setState(() {
-        _isLoading = false; // Убираем индикатор загрузки
-      });
-    } catch (ex) {}
-  }
-
-  // Генерация данных для диаграммы из массива объектов
-  void _generateChartData(List<Map<String, dynamic>> data) {
-    Map<String, double> categoryExpenseMap = {};
-    if (_isExpenseView) {
-      // Проходим по всем данным и суммируем расходы или доходы по категориям
-      for (var item in data) {
-        if ((_isExpenseView && item['type'] == 'expense') ||
-            (_isExpenseView && item['type'] != 'income')) {
-          String category = item['category'];
-          int amount = item['amount'];
-
-          // Если категория уже существует, добавляем к сумме
-          if (categoryExpenseMap.containsKey(category)) {
-            categoryExpenseMap[category] =
-                categoryExpenseMap[category]! + amount;
-          } else {
-            // Если категории нет, создаём новую запись
-            categoryExpenseMap[category] = amount * 1.0;
-          }
-        }
-      }
-
-      // Преобразуем данные в формат для диаграммы
-      List<PieChartSectionData> sections = [];
-      categoryExpenseMap.forEach((category, amount) {
-        sections.add(
-          PieChartSectionData(
-            value: amount,
-            title: '${amount.toInt()}',
-            color: _getCategoryColor(category), // Определяем цвет для категории
-            radius: 40,
-            titleStyle: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        );
-      });
-
-      try {
-        setState(() {
-          _pieChartSections = sections;
-        });
-      } catch (ex) {}
-    } else {
-      // Проходим по всем данным и суммируем расходы или доходы по категориям
-      for (var item in data) {
-        if ((!_isExpenseView && item['type'] == 'expense') ||
-            (!_isExpenseView && item['type'] == 'income')) {
-          String category = item['type'];
-          int amount = item['amount'];
-
-          // Если категория уже существует, добавляем к сумме
-          if (categoryExpenseMap.containsKey(category)) {
-            categoryExpenseMap[category] =
-                categoryExpenseMap[category]! + amount;
-          } else {
-            // Если категории нет, создаём новую запись
-            categoryExpenseMap[category] = amount * 1.0;
-          }
-        }
-      }
-
-      // Преобразуем данные в формат для диаграммы
-      List<PieChartSectionData> sections = [];
-      categoryExpenseMap.forEach((category, amount) {
-        sections.add(
-          PieChartSectionData(
-            value: amount,
-            title: '${amount.toInt()}',
-            color: _getCategoryColor(category), // Определяем цвет для категории
-            radius: 40,
-            titleStyle: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        );
-      });
-
-      try {
-        setState(() {
-          _pieChartSections = sections;
-        });
-      } catch (ex) {}
-    }
-  }
-
-  // Функция для получения цвета для каждой категории
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'expense':
-        return Colors.red;
-      case 'income':
-        return Colors.green;
-      case 'food':
-        return Colors.green;
-      case 'transport':
-        return Colors.blue;
-      case 'entertainment':
-        return Colors.purple;
-      case 'bills':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  // Обработчик смены вида диаграммы
-  void _toggleChartView() {
-    setState(() {
-      _isExpenseView = !_isExpenseView; // Переключаем флаг
-    });
-    _fetchChartData(); // Перезагружаем данные диаграммы с учётом нового типа
   }
 
   // Открытие выбора диапазона дат
@@ -267,7 +101,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light(
+            colorScheme: const ColorScheme.light(
               primary: Colors.yellow,
               onPrimary: Colors.black,
               secondary: Colors.grey,
@@ -279,8 +113,8 @@ class _AnaliticPageState extends State<AnaliticPage> {
             dialogTheme: DialogTheme(backgroundColor: Colors.grey[850]),
             textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(foregroundColor: Colors.black)),
-            iconTheme: IconThemeData(color: Colors.white),
-            textTheme: TextTheme(
+            iconTheme: const IconThemeData(color: Colors.white),
+            textTheme: const TextTheme(
               bodyLarge: TextStyle(color: Colors.black),
               bodyMedium: TextStyle(color: Colors.white),
               bodySmall: TextStyle(color: Colors.white),
@@ -290,7 +124,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
               fillColor: Colors.grey[800],
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.yellow, width: 2),
+                borderSide: const BorderSide(color: Colors.yellow, width: 2),
               ),
             ),
           ),
@@ -326,10 +160,6 @@ class _AnaliticPageState extends State<AnaliticPage> {
       "end_date": _selectedDateRange.end.toString().substring(0, 10),
     });
 
-    print(url);
-    print(body);
-    print(headers);
-
     var response = await http.post(
       url,
       headers: headers,
@@ -354,25 +184,20 @@ class _AnaliticPageState extends State<AnaliticPage> {
       if (spots[i]["date"] != null && spots[i]["amount"] != null) {
         DateTime spotDate = DateTime.parse(spots[i]["date"].toString());
         DateTime lowerTargetDate = _selectedDateRange.start;
-        DateTime upperTargetDate = _selectedDateRange.end;
+        //DateTime upperTargetDate = _selectedDateRange.end;
         int daysDifference = spotDate.difference(lowerTargetDate).inDays;
-        print(daysDifference);
         int amount = int.parse(spots[i]["amount"].toString());
-        print(amount);
         // if (spotDate.difference(upperTargetDate).inDays <= 0 ||
         //     spotDate.difference(lowerTargetDate).inDays < 0) {
         //   listOfSpots.add(FlSpot(daysDifference.toDouble(), amount.toDouble()));
         // }
         if (spots[i]["type"] == 0) {
-          print("===");
-          print(">>>");
           mapOfSpots[daysDifference] =
               (mapOfSpots[daysDifference] ?? 0) - amount;
         } else if (spots[i]["type"] == 1) {
           mapOfSpots[daysDifference] =
               (mapOfSpots[daysDifference] ?? 0) + amount;
         }
-        print(spots[i]["type"]);
       }
     }
     mapOfSpots.forEach((key, value) {
@@ -397,19 +222,17 @@ class _AnaliticPageState extends State<AnaliticPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("ожидаю...");
-            return Center(
+            return const Center(
                 child: CircularProgressIndicator()); // Пока данные загружаются
           }
 
           if (snapshot.hasError) {
-            print("ОШИБКА ЕБАТЬ ТЕБЯ В СРАКУ");
             return Center(
                 child: Text('Ошибка: ${snapshot.error}')); // Обработка ошибки
           }
 
           if (!snapshot.hasData) {
-            print("ПУСТО EMPTY ЛОХ");
-            return Center(child: Text('Нет данных')); // Если данных нет
+            return const Center(child: Text('Нет данных')); // Если данных нет
           }
 
           List<FlSpot> spots = snapshot.data!;
@@ -472,8 +295,8 @@ class _AnaliticPageState extends State<AnaliticPage> {
                             ),
                           ],
                           titlesData: FlTitlesData(
-                            rightTitles: AxisTitles(),
-                            topTitles: AxisTitles(),
+                            rightTitles: const AxisTitles(),
+                            topTitles: const AxisTitles(),
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
@@ -481,7 +304,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 getTitlesWidget: (value, meta) {
                                   final matchingSpot = spots.firstWhere(
                                       (spot) => spot.x == value,
-                                      orElse: () => FlSpot(0, 0));
+                                      orElse: () => const FlSpot(0, 0));
 
                                   if (matchingSpot.x != 0) {
                                     Duration duration =
@@ -498,7 +321,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                         dateString,
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.white, fontSize: 14),
                                       ),
                                     );
@@ -523,8 +346,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                   } else {
                                     String newVal = value.toString();
                                     return Text(
-                                      newVal.substring(0, newVal.length - 5) +
-                                          'K',
+                                      '${newVal.substring(0, newVal.length - 5)}K',
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 14),
                                     );
@@ -547,8 +369,23 @@ class _AnaliticPageState extends State<AnaliticPage> {
                     itemBuilder: (context, index) {
                       var data = _analyticsData[index];
                       Color borderColor;
+                      Color backgroundColor =
+                          Theme.of(context).cardColor; // Цвет по умолчанию
+                      TextStyle titleStyle =
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ) ??
+                              const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ); // Стиль по умолчанию
+                      TextStyle infoStyle =
+                          Theme.of(context).textTheme.bodySmall ??
+                              const TextStyle();
 
-                      // Выбор цвета границы на основе статуса
+                      bool isSpecialCard = data['status'] ==
+                          3; // Проверяем, нужен ли спец. дизайн
+
+                      // Выбор цвета границы и фона на основе статуса
                       switch (data['status']) {
                         case 0:
                           borderColor = Colors.red; // Отрицательная информация
@@ -559,6 +396,14 @@ class _AnaliticPageState extends State<AnaliticPage> {
                         case 2:
                           borderColor =
                               Colors.green; // Положительная информация
+                          break;
+                        case 3:
+                          borderColor = Colors.green;
+                          backgroundColor = Colors.yellow; // Жёлтый фон
+                          titleStyle = titleStyle.copyWith(
+                              color: Colors.black); // Чёрный текст
+                          infoStyle = infoStyle.copyWith(
+                              color: Colors.black); // Чёрный текст
                           break;
                         default:
                           borderColor = Colors.grey;
@@ -572,7 +417,7 @@ class _AnaliticPageState extends State<AnaliticPage> {
                         ),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: backgroundColor, // Используем выбранный цвет
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Padding(
@@ -583,21 +428,31 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.circle,
-                                      color: borderColor,
-                                      size: 14,
-                                    ),
+                                    if (isSpecialCard)
+                                      CircleAvatar(
+                                        radius: 22, // Радиус с учётом границы
+                                        backgroundColor:
+                                            Colors.black, // Цвет границы
+                                        child: CircleAvatar(
+                                          radius:
+                                              20, // Радиус внутреннего изображения
+                                          backgroundImage: AssetImage(
+                                            'assets/logos/t.png',
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Icon(
+                                        Icons.circle,
+                                        color: borderColor,
+                                        size: 14,
+                                      ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         data['title'],
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                        style:
+                                            titleStyle, // Используем изменённый стиль
                                       ),
                                     ),
                                   ],
@@ -605,8 +460,28 @@ class _AnaliticPageState extends State<AnaliticPage> {
                                 const SizedBox(height: 8),
                                 Text(
                                   data['info'],
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                  style:
+                                      infoStyle, // Используем изменённый стиль
                                 ),
+                                if (isSpecialCard) ...[
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: List.generate(
+                                      3,
+                                      (index) => Container(
+                                        height: 100,
+                                        width: 100,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

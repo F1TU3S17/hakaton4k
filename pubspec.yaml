@@ -65,6 +65,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logos/t_logo.png
+    - assets/logos/t.png
+    - assets/
     
 
   # An image asset can refer to one or more resolution-specific "variants", see
