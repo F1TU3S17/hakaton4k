@@ -15,7 +15,8 @@ Future getBalance(String token) async {
   //print(token);
   if (response.statusCode == 200) {
     // Если запрос успешен, парсим JSON ответ
-    return (json.decode(response.body)['amount']);
+    return int.parse(json.decode(response.body)['amount']);
+
   }
   else if (response.statusCode == 500 || response.statusCode == 404) {
     return 0;

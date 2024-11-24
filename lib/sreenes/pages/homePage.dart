@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:hakaton4k/mapping/categories/allCategories.dart';
 import 'package:hakaton4k/modal/user.dart';
+import 'package:hakaton4k/services/api/getPeriodTransaction.dart';
 import 'package:hakaton4k/services/api/getUserInfo.dart';
 import 'package:hakaton4k/services/api/getUserAmount.dart';
+
 import 'package:hakaton4k/services/localStorage/ls.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/profileCard.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/transactionWidget.dart';
-import '../../сonstants/transactions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.theme});
@@ -18,13 +20,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _userAmount = 0; 
+  int _userAmount = 0;
+  List<Map<String, dynamic>> _transactions = []; // Хранение транзакций
+
   // Метод для получения данных пользователя
   Future<User> _fetchUserData() async {
     try {
-      final token = await getToken(); // Получение токена
+      final token = await getToken();
       _userAmount = await getBalance(token.toString());
-      return (await fetchUser(token.toString()))!; // Загрузка данных пользователя
+
+      // Получение транзакций
+      _transactions = await fetchTransactions(token.toString());
+      _transactions.sort((a, b) => b['date'].compareTo(a['date']));
+      return (await fetchUser(token.toString()))!;
     } catch (error) {
       throw Exception('Ошибка при загрузке данных: $error');
     }
@@ -60,7 +68,10 @@ class _HomePageState extends State<HomePage> {
                 // Карточка профиля
                 profileCard(theme: widget.theme, user: userData),
                 // Карточка баланса
-                BalanceWidget(theme: widget.theme, amount: _userAmount,),
+                BalanceWidget(
+                  theme: widget.theme,
+                  amount: _userAmount,
+                ),
                 // Карточка финансового здоровья
                 HealthWidget(
                   theme: widget.theme,
@@ -93,16 +104,24 @@ class _HomePageState extends State<HomePage> {
                             height: 250, // Ограничение по высоте
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
-                              itemCount: transactions.length,
+                              itemCount: 8,
                               itemBuilder: (context, index) {
-                                final transaction = transactions[index];
+                                final transaction = _transactions[index];
+                                final categoryData =
+                                    allCategories[transaction['category']];
+
                                 return TransactionWidget(
-                                  iconType: transaction['iconType'],
-                                  categoryName: transaction['categoryName'],
-                                  date: transaction['date'],
-                                  cost: transaction['cost'],
-                                  typeValue: transaction['typeValue'],
-                                  isExpense: transaction['isExpense'],
+                                  iconType: categoryData?['icon'] ??
+                                      Icons
+                                          .help_outline, // Иконка из маппинга или дефолтная
+                                  categoryName: categoryData?['name'] ??
+                                      'Неизвестная категория', // Название категории
+                                  date: transaction['date'] ??
+                                      'Неизвестная дата', // Дата транзакции
+                                  cost: (transaction['amount'])
+                                      .toString(), // Сумма
+                                  typeValue: 'руб',
+                                  isExpense: categoryData?['type'] == 1 , // Определение, является ли транзакция расходом
                                 );
                               },
                             ),

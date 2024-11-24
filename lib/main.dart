@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hakaton4k/sreenes/mainScreen.dart';
-import 'package:hakaton4k/themes/appTheme.dart';
-import 'package:hakaton4k/services/localStorage/ls.dart';
 import 'package:hakaton4k/widgets/chekAuthWidget.dart';
+import 'package:hakaton4k/themes/appTheme.dart';
 
 void main() {
   debugPaintSizeEnabled = false;
