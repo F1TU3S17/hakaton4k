@@ -43,6 +43,7 @@ dependencies:
   fl_chart: ^0.69.2
   syncfusion_flutter_charts: ^27.2.3
   collection: ^1.17.0
+  http: ^1.2.2
 
 
 dev_dependencies:

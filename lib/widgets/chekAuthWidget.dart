@@ -25,7 +25,6 @@ class _CheckAuthWidgetState extends State<CheckAuthWidget> {
     setState(() {
       print(token);
       _isAuth = token != null;
- 
     });
   }
 
