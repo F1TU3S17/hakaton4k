@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 Future<List<Map<String, dynamic>>> fetchTransactions(String token) async {
   final Uri url = Uri.parse('https://test-go-babich.amvera.io/user/operations/period'); // Укажите URL
   final String startDate = "2024-11-01";
-  final String endDate = DateTime.now().toIso8601String().split('T').first; // Текущая дата в формате "YYYY-MM-DD"
+  DateTime now = DateTime.now();
+  DateTime end_date = now.add(Duration(days: 3));
+  final String endDate = end_date.toIso8601String().split('T').first; // Текущая дата в формате "YYYY-MM-DD"
   print(endDate);
   try {
     final response = await http.post(
@@ -34,11 +36,4 @@ Future<List<Map<String, dynamic>>> fetchTransactions(String token) async {
     print('Ошибка при выполнении запроса: $e');
     return [];
   }
-}
-
-
-void main() async {
-  final String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0ODYyNjAsImlhdCI6MTczMjM5OTg2MCwidXNlcl9pZCI6IjEwIn0.XYuuokqQvXsmxTYZdlHNAcSC7kBim9n2pXlu5Po1kXA'; // Укажите токен
-  final List<Map<String, dynamic>> transactions = await fetchTransactions(token);
-  print(transactions);
 }

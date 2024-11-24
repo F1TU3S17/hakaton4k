@@ -1,4 +1,6 @@
   import 'package:flutter/material.dart';
+import 'package:hakaton4k/sreenes/mainScreen.dart';
+import 'package:hakaton4k/sreenes/pages/homePage.dart';
   import 'package:mobile_scanner/mobile_scanner.dart';
   import 'package:hakaton4k/services/localStorage/ls.dart';
   import 'package:hakaton4k/services/api/sendQrData.dart';
@@ -44,33 +46,40 @@
     }
 
     Future<void> _handleBarcode(BarcodeCapture capture) async {
-      final barcode = capture.barcodes.first;
-      final rawValue = barcode.rawValue;
+  final barcode = capture.barcodes.first;
+  final rawValue = barcode.rawValue;
 
-      if (rawValue == null) {
-        _showMessage('Не удалось распознать QR-код');
-        return;
-      }
+  if (rawValue == null) {
+    _showMessage('Не удалось распознать QR-код');
+    return;
+  }
 
-      final isValid = RegExp(
-        r'^t=\d{8}T\d{4}&s=\d+\.\d{2}&fn=\d+&i=\d+&fp=\d+&n=\d+$',
-      ).hasMatch(rawValue);
+  final isValid = RegExp(
+    r'^t=\d{8}T\d{4}&s=\d+\.\d{2}&fn=\d+&i=\d+&fp=\d+&n=\d+$',
+  ).hasMatch(rawValue);
 
-      if (isValid) {
-      try{
-        _showMessage('QR-код успешно распознан');
-        final String? token = await getToken();
-        print('TOKEN QR: $token');
-        sendChequeData(token!, rawValue); 
-      }
-      catch (e) {
-        print('ERROR: $e');
-      }
-        //rawValue
-      } else {
-        _showMessage('Неверный формат QR-кода');
-      }
+  if (isValid) {
+    try {
+      _showMessage('QR-код успешно распознан');
+      final String? token = await getToken();
+      print('TOKEN QR: $token');
+      sendChequeData(token!, rawValue); 
+
+      Future.delayed(Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen())
+          );
+        }
+      });
+    } catch (e) {
+      print('ERROR: $e');
     }
+  } else {
+    _showMessage('Неверный формат QR-кода');
+  }
+}
 
     void _showMessage(String message) {
       setState(() {

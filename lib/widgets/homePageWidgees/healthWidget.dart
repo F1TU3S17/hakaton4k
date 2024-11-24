@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hakaton4k/widgets/homePageWidgees/FinancialHealthDetailScreen.dart';
 
 final pi = 3.14;
 
@@ -16,7 +17,8 @@ class HealthWidget extends StatefulWidget {
   _HealthWidgetState createState() => _HealthWidgetState();
 }
 
-class _HealthWidgetState extends State<HealthWidget> with SingleTickerProviderStateMixin {
+class _HealthWidgetState extends State<HealthWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   late Animation<Color?> _colorAnimation;
@@ -78,7 +80,8 @@ class _HealthWidgetState extends State<HealthWidget> with SingleTickerProviderSt
               children: [
                 Icon(
                   Icons.favorite,
-                  color: getHealthColor(widget.healthScore), // Цвет зависит от здоровья
+                  color: getHealthColor(
+                      widget.healthScore), // Цвет зависит от здоровья
                   size: 32,
                 ),
                 const SizedBox(width: 12),
@@ -92,7 +95,7 @@ class _HealthWidgetState extends State<HealthWidget> with SingleTickerProviderSt
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Индикатор здоровья
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +150,13 @@ class _HealthWidgetState extends State<HealthWidget> with SingleTickerProviderSt
                 elevation: 0, // Убираем тень
               ),
               onPressed: () {
-                print('Переход к деталям здоровья');
+                // Переход на экран с деталями
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FinancialHealthDetailScreen(),
+                  ),
+                );
               },
               child: const Text('Подробнее'),
             ),
@@ -172,7 +181,8 @@ class ProgressPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 10; // Уменьшаем радиус, чтобы линия не выходила за пределы
+    final radius = size.width / 2 -
+        10; // Уменьшаем радиус, чтобы линия не выходила за пределы
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 20.0; // Увеличиваем толщину линии
