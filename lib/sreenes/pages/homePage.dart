@@ -85,7 +85,8 @@ class _HomePageState extends State<HomePage> {
                       getExpenses(_transactions),
                       getInvestments(_transactions),
                       getDeposits(_transactions),
-                      getFreeFunds(_transactions)),
+                      getFreeFunds(_transactions),
+                      _userAmount.toDouble()),
                 ),
                 // Карточка с транзакциями
                 Card(

@@ -13,7 +13,7 @@ class FinancialHealthDetailScreen extends StatefulWidget {
 }
 
 class _FinancialHealthDetailScreenState extends State<FinancialHealthDetailScreen> {
-  late double balance;
+  late double balance = 0.0;
 
   @override
   void initState() {
@@ -24,7 +24,9 @@ class _FinancialHealthDetailScreenState extends State<FinancialHealthDetailScree
   // Получаем баланс асинхронно
   Future<void> _getBalance() async {
     final token = await getToken();
-    balance = await getBalance(token!);
+    balance = (await getBalance(token!)).toDouble();
+
+    
     setState(() {}); // После получения баланса обновляем UI
   }
 
