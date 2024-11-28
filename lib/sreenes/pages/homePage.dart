@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:hakaton4k/mapping/categories/allCategories.dart';
 import 'package:hakaton4k/modal/user.dart';
@@ -6,6 +8,7 @@ import 'package:hakaton4k/services/api/getUserInfo.dart';
 import 'package:hakaton4k/services/api/getUserAmount.dart';
 
 import 'package:hakaton4k/services/localStorage/ls.dart';
+import 'package:hakaton4k/sreenes/pages/allTransaction.dart';
 import 'package:hakaton4k/utils/calculateFinancialHealth.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/balanceWidget.dart';
 import 'package:hakaton4k/widgets/homePageWidgees/healthWidget.dart';
@@ -115,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                             height: 250, // Ограничение по высоте
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
-                              itemCount: _transactions.length,
+                              itemCount: min(_transactions.length, 5),
                               itemBuilder: (context, index) {
                                 final transaction = _transactions[index];
                                 final categoryData =
@@ -131,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                                       'Неизвестная дата', // Дата транзакции
                                   cost: (transaction['amount'])
                                       .toString(), // Сумма
-                                  typeValue: 'руб',
+                                  typeValue: '₽',
                                   isExpense: categoryData?['type'] ==
                                       1, // Определение, является ли транзакция расходом
                                 );
@@ -152,7 +155,12 @@ class _HomePageState extends State<HomePage> {
                                   elevation: 0, // Убираем тень у кнопки
                                 ),
                                 onPressed: () {
-                                  print('Все операции');
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) =>
+                                          AllTransaction(
+                                              transactions: _transactions,
+                                              theme: widget.theme)
+                                      ));
                                 },
                                 child: const Text('Детальнее'),
                               ),

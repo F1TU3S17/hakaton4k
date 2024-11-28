@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hakaton4k/sreenes/pages/transactionInfo.dart';
 
 class TransactionWidget extends StatelessWidget {
   const TransactionWidget({
@@ -17,6 +18,7 @@ class TransactionWidget extends StatelessWidget {
   final String cost;
   final String typeValue;
   final bool isExpense;
+  final String description = "Какое-то описание операции, если бы оно приходило с бэка, эхх....";
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,25 @@ class TransactionWidget extends StatelessWidget {
             style: theme.textTheme.bodyLarge?.copyWith(
               color: isExpense ? Colors.green : Colors.red,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_forward_rounded,
+            ),
+            onPressed: () => (
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TransactionInfo(
+                  iconType: iconType,
+                  categoryName: categoryName,
+                  date: date,
+                  cost: cost,
+                  typeValue: typeValue,
+                  isExpense: isExpense,
+                  description: description,
+                )),
+              ),
             ),
           ),
         ],
